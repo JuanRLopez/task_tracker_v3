@@ -3,14 +3,20 @@ import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import $ from 'jquery';
 import { Link, BrowserRouter as Router, Route } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
+import api from './api';
+import Login from './login';
 import Header from './header';
 import Task from './task';
 import TaskList from './task_list';
 
-export default function root_init(node) {
+export default function root_init(node, store) {
   let tasks = window.tasks;
-  ReactDOM.render(<Root tasks={tasks} />, node);
+  ReactDOM.render(
+    <Provider store={store}>
+      <Root tasks={tasks} />
+    </Provider>, node);
 }
 
 class Root extends React.Component {
@@ -21,39 +27,27 @@ class Root extends React.Component {
       users: [],
     };
 
-    //this.fetch_products();
-  }
-
-  fetch(path, callback) {
-    $.ajax(path, {
-      method: "get",
-      dataType: "json",
-      contentType: "application/json; charset=UTF-8",
-      data: "",
-      success: callback,
-    });
-  }
-
-  fetch_tasks() {
-    fetch(
-      "/api/v1/tasks",
-      (resp) => {
-        let state1 = _.assign({}, this.state, { tasks: resp.data });
-        this.setState(state1);
-      }
-    );
+    api.fetch_tasks();
+    //this.fetch_users();
+    api.create_session('jlopez', 'password');
   }
 
   render() {
     return <div>
       <Router>
         <div>
-          <Header root={this} />
+          <Header />
           <Route path="/" exact={true} render={() =>
-            <TaskList tasks={this.state.tasks} />
+            <TaskList />
+          } />
+          <Route path="/login" exact={true} render={() =>
+            <Login />
           } />
           <Route path="/task/:id" exact={true} render={() =>
-            <Task tasks={this.state.tasks} />
+            <Task />
+          } />
+	  <Route path="/task/new" exact={true} render={() =>
+            <NewTask />
           } />
         </div>
       </Router>
@@ -62,20 +56,51 @@ class Root extends React.Component {
 }
 
 function Header(props) {
-  let {root} = props;
-  return <div className="row my-2">
-    <div className="col-4">
-      <h1><Link to={"/"}>Husky Shop</Link></h1>
-    </div>
-    <div className="col-2">
-      <p><Link to={"/users"} onClick={root.fetch_users.bind(root)}>Users</Link></p>
-    </div>
-    <div className="col-6">
-      <div className="form-inline my-2">
-        <input type="email" placeholder="email" />
-        <input type="password" placeholder="password" />
-        <button className="btn btn-secondary">Login</button>
+  let {session} = props;
+  let val = <p>something went wrong</p>;
+
+  if (typeof session.username != 'undefined') {
+    return <nav className="navbar navbar-expand-lg navbar-dark bg-dark row">
+      <Link to={"/"} onClick={() => api.fetch_taskss()} className="navbar-brand nav-text">Tasks</Link>
+      <ul className="navbar-nav">
+        <li className="nav-item">
+          <Link to={"/task/new"} className="nav-text">New Task</Link>
+        </li>
+      </ul>
+
+      <div className="ml-auto nav-text">
+        <p className="nav-text">
+	  {session.username} |
+          <Link to={"/login"} onClick={() => api.logout()} classNme="btn btn-warning">Logout</Link>
+	</p>
       </div>
+    </nav>;
+  } else {
+    return <nav className="navbar navbar-expand-lg navbar-dark bg-dark row">
+        <Link to={"/login"} className="navbar-brand nav-text">Tasks</Link>
+      </nav>;
+  }
+
+  /*
+  return <nav className="navbar navbar-expand-lg navbar-dark bg-dark row">
+    <%= if @current_user do %>
+      <Link to={"/"} onClick={() => api.fetch_taskss()} className="navbar-brand nav-text">Tasks</Link>
+    <% else %>
+      <Link to={"/login"} className="navbar-brand nav-text">Tasks</Link>
+    <% end %>
+
+    <ul className="navbar-nav">
+      <li className="nav-item">
+        <Link to={"/task/new"} className="nav-text">New Task</Link>
+      </li>
+    </ul>
+
+    <div className="ml-auto nav-text">
+      <%= if @current_user do %>
+        <%= @current_user.username %> |
+        <Link to={"/login"} onClick={() => api.logout()} classNme="btn btn-warning">Logout</Link>
+      <% end %>
     </div>
-  </div>;
+  </nav>;
+  */
 }

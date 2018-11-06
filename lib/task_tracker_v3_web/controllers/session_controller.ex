@@ -4,11 +4,12 @@ defmodule TaskTrackerV3Web.SessionController do
   alias TaskTrackerV3.Users.User
 
   def create(conn, %{"username" => username, "password" => password}) do
-    with %User{} = user <- TaskTrackerV3.Users.get_and_auth_user(username, pass) do
+    with %User{} = user <- TaskTrackerV3.Users.get_and_auth_user(username, password) do
       resp = %{
         data: %{
           token: Phoenix.Token.sign(TaskTrackerV3Web.Endpoint, "user_id", user.id),
           user_id: user.id,
+          username: username,
         }
       }
       conn

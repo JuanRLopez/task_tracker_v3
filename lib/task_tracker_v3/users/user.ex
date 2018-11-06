@@ -16,6 +16,7 @@ defmodule TaskTrackerV3.Users.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:username, :password_hash])
+    |> unique_constraint(:username)
     |> validate_required([:username, :password_hash])
   end
 end

@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :task_tracker_v3, TaskTrackerV3Web.Endpoint,
-  http: [port: 4000],
+  http: [port: 4795],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -49,7 +49,7 @@ config :task_tracker_v3, TaskTrackerV3Web.Endpoint,
 config :task_tracker_v3, TaskTrackerV3Web.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      ~r{priv/static/.*(js|scss|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
       ~r{lib/task_tracker_v3_web/views/.*(ex)$},
       ~r{lib/task_tracker_v3_web/templates/.*(eex)$}
@@ -66,10 +66,21 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+get_secret = fn name ->
+  base = Path.expand("~/.config/task_tracker")
+  File.mkdir_p!(base)
+  path = Path.join(base, name)
+  unless File.exists?(path) do
+    secret = Base.encode16(:crypto.strong_rand_bytes(32))
+    File.write!(path, secret)
+  end
+  String.trim(File.read!(path))
+end
+
 # Configure your database
 config :task_tracker_v3, TaskTrackerV3.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "task_tracker_v3",
+  password: get_secret.("db_pass"),
   database: "task_tracker_v3_dev",
   hostname: "localhost",
   pool_size: 10

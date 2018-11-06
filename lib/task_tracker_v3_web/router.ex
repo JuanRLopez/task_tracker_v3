@@ -22,6 +22,7 @@ defmodule TaskTrackerV3Web.Router do
   # Other scopes may use custom stacks.
    scope "/api/v1", TaskTrackerV3Web do
      pipe_through :api
+     resources "/sessions", SessionController, only: [:create]
      resources "/users", UserController, except: [:new, :edit]
      resources "/tasks", TaskController, except: [:new, :edit]
    end

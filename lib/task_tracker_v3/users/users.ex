@@ -4,6 +4,7 @@ defmodule TaskTrackerV3.Users do
   """
 
   import Ecto.Query, warn: false
+  import Argon2
   alias TaskTrackerV3.Repo
 
   alias TaskTrackerV3.Users.User
@@ -52,6 +53,7 @@ defmodule TaskTrackerV3.Users do
   def create_user(attrs \\ %{}) do
     %User{}
     |> User.changeset(attrs)
+    |> Map.put(:password, Argon2.hash_pwd_salt(attrs["password"]))
     |> Repo.insert()
   end
 
@@ -102,7 +104,7 @@ defmodule TaskTrackerV3.Users do
     User.changeset(user, %{})
   end
 
-  def get_user_by_usename(username) do
+  def get_user_by_username(username) do
     Repo.get_by(User, username: username)
   end
 
