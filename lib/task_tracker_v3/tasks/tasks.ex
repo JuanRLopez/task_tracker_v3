@@ -18,7 +18,8 @@ defmodule TaskTrackerV3.Tasks do
 
   """
   def list_tasks do
-    Repo.all(Task)
+    Repo.all from t in Task,
+      preload: [:user]
   end
 
   @doc """
@@ -35,7 +36,11 @@ defmodule TaskTrackerV3.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_task!(id), do: Repo.get!(Task, id)
+  def get_task!(id) do
+    Repo.one! from t in Task,
+      where: t.id == ^id,
+      preload: [:user]
+  end
 
   @doc """
   Creates a task.
@@ -58,7 +63,7 @@ defmodule TaskTrackerV3.Tasks do
     attrs = Map.put(attrs, "user_id", user_id)
     attrs = Map.put(attrs, "completed", false)
     attrs = Map.put(attrs, "time_worked", 0)
-   
+
     %Task{}
     |> Task.changeset(attrs)
     |> Repo.insert()

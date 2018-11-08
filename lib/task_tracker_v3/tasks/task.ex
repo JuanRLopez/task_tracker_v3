@@ -18,5 +18,7 @@ defmodule TaskTrackerV3.Tasks.Task do
     task
     |> cast(attrs, [:title, :desc, :time_worked, :completed, :user_id])
     |> validate_required([:title, :desc, :time_worked, :completed, :user_id])
+    |> validate_inclusion(:time_worked, Enum.map(0..1000000, fn i -> i * 15 end),
+                          message: "time worked has to be in 15 minute intervals")
   end
 end

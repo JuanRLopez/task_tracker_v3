@@ -4,16 +4,17 @@ import _ from 'lodash';
 
 import api from './api';
 
-function Register(props) {
+export default function Register(props) {
   return <div className="row">
       <div className="col-6">
         <div className="form">
           <input type="text" placeholder="username" />
           <input type="password" placeholder="password" />
-          <button className="btn btn-secondary" onClick={() => api.create_session(????, ????)}>Register</button>
+          <Link to={"/login"} className="btn btn-primary"
+            onClick={() => api.create_user($("#username").val(), $("#password").val())}>Register</Link>
         </div>
       </div>
     </div>;
 }
 
-export default connect((state) => {return state;})(Register);
+//export default connect((state) => {return state;})(Register);

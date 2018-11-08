@@ -7,8 +7,10 @@ import { Provider } from 'react-redux';
 
 import api from './api';
 import Login from './login';
+import Register from './register';
 import Header from './header';
 import Task from './task';
+import NewTask from './new_task';
 import TaskList from './task_list';
 
 export default function root_init(node, store) {
@@ -28,8 +30,16 @@ class Root extends React.Component {
     };
 
     api.fetch_tasks();
-    //this.fetch_users();
     api.create_session('jlopez', 'password');
+  }
+
+  requireLogin(nextState, replace) {
+    let state = store.getState();
+    if (!state.session) {
+      replace({
+        pathname: '/login'
+      })
+    }
   }
 
   render() {
@@ -37,17 +47,24 @@ class Root extends React.Component {
       <Router>
         <div>
           <Header />
-          <Route path="/" exact={true} render={() =>
+          <Route path="/" exact={true} onEnter={requireLogin} render={() =>
             <TaskList />
           } />
           <Route path="/login" exact={true} render={() =>
             <Login />
           } />
-          <Route path="/task/:id" exact={true} render={() =>
+          <Route path="/register" exact={true} render={() =>
+            <Register />
+          } />
+          // TODO: what??????????????????????????????
+          <Route path="/task/:id" exact={true} onEnter={requireLogin} render={() =>
             <Task />
           } />
-	  <Route path="/task/new" exact={true} render={() =>
+	        <Route path="/task/new" exact={true} onEnter={requireLogin} render={() =>
             <NewTask />
+          } />
+          <Route path="/task/edit/:id" exact={true} onEnter={requireLogin} render={() =>
+            <EditTask />
           } />
         </div>
       </Router>
@@ -57,11 +74,9 @@ class Root extends React.Component {
 
 function Header(props) {
   let {session} = props;
-  let val = <p>something went wrong</p>;
-
-  if (typeof session.username != 'undefined') {
+  if (!session) {
     return <nav className="navbar navbar-expand-lg navbar-dark bg-dark row">
-      <Link to={"/"} onClick={() => api.fetch_taskss()} className="navbar-brand nav-text">Tasks</Link>
+      <Link to={"/"} onClick={() => api.fetch_tasks()} className="navbar-brand nav-text">Tasks</Link>
       <ul className="navbar-nav">
         <li className="nav-item">
           <Link to={"/task/new"} className="nav-text">New Task</Link>
@@ -70,9 +85,9 @@ function Header(props) {
 
       <div className="ml-auto nav-text">
         <p className="nav-text">
-	  {session.username} |
+	        {session.username} |
           <Link to={"/login"} onClick={() => api.logout()} classNme="btn btn-warning">Logout</Link>
-	</p>
+	      </p>
       </div>
     </nav>;
   } else {

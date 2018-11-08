@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
 import api from './api';
@@ -20,7 +21,11 @@ function Task(props) {
     <div className="col-8">
       <div className="card">
         <div className="card-body">
-          <h2 className="card-title">{task.name}</h2>
+          <h2 className="card-title">
+            <Link to={"/task/" + task.id} onClick={() => api.fetch_task(task.id)}>
+              {task.name}
+            </Link>
+          </h2>
           <p className="card-text">
             Assigned to: {task.user.username} | Completed: {task.Completed}
           </p>
@@ -31,4 +36,4 @@ function Task(props) {
   </div>;
 }
 
-export default connect((state) => {return {tasks: state.tasks};})(TaskList);
+export default connect(({tasks}) => ({tasks}))(TaskList);
