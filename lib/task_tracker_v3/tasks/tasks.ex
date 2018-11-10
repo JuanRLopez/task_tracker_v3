@@ -61,8 +61,9 @@ defmodule TaskTrackerV3.Tasks do
     end
     attrs = Map.delete(attrs, "assigned_user")
     attrs = Map.put(attrs, "user_id", user_id)
-    attrs = Map.put(attrs, "completed", false)
-    attrs = Map.put(attrs, "time_worked", 0)
+    attrs = Map.put(attrs, "time_worked", elem(Integer.parse(attrs["time_worked"]),  0))
+
+    IO.puts("\n[IURNIAEBRIUAERN]\n#{inspect(attrs)}\n")
 
     %Task{}
     |> Task.changeset(attrs)
@@ -87,6 +88,7 @@ defmodule TaskTrackerV3.Tasks do
       _ -> TaskTrackerV3.Users.get_user_by_username(attrs["assigned_user"]).id
     end
     attrs = Map.put(attrs, "user_id", user_id)
+    attrs = Map.put(attrs, "time_worked", elem(Integer.parse(attrs["time_worked"]),  0))
 
     task
     |> Task.changeset(attrs)

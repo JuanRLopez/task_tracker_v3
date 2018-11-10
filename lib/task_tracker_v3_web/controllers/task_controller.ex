@@ -12,8 +12,10 @@ defmodule TaskTrackerV3Web.TaskController do
   end
 
   def create(conn, %{"task" => task_params, "token" => token}) do
+    IO.puts("\n[in create]\n#{inspect(task_params)}\n#{inspect(token)}\n")
     {:ok, user_id} = Phoenix.Token.verify(TaskTrackerV3Web.Endpoint, "user_id", token, max_age: 86400)
     with {:ok, %Task{} = task} <- Tasks.create_task(task_params) do
+      task = Tasks.get_task!(task.id)
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.task_path(conn, :show, task))

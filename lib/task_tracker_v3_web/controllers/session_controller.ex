@@ -1,6 +1,8 @@
 defmodule TaskTrackerV3Web.SessionController do
   use TaskTrackerV3Web, :controller
 
+  action_fallback TaskTrackerV3Web.FallbackController
+
   alias TaskTrackerV3.Users.User
 
   def create(conn, %{"username" => username, "password" => password}) do
@@ -9,7 +11,7 @@ defmodule TaskTrackerV3Web.SessionController do
         data: %{
           token: Phoenix.Token.sign(TaskTrackerV3Web.Endpoint, "user_id", user.id),
           user_id: user.id,
-          username: username,
+          username: user.username,
         }
       }
       conn

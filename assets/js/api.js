@@ -1,7 +1,6 @@
-//
-// TODO: redirect
-//
 import store from './store';
+import history from './history';
+import Root from './root';
 
 class TheServer {
   fetch(path, callback) {
@@ -14,13 +13,14 @@ class TheServer {
     });
   }
 
-  post(path, data, callback) {
+  post(path, data, callback, error) {
     $.ajax(path, {
       method: "post",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
       data: JSON.stringify(data),
       success: callback,
+      error: error,
     });
   }
 
@@ -34,30 +34,30 @@ class TheServer {
     });
   }
 
-  del(path, data, callback) {
+  del(path, callback) {
     $.ajax(path, {
       method: "delete",
       dataType: "json",
       contentType: "application/json; charset=UTF-8",
-      data: data,
+      data: "",
       success: callback,
     });
   }
 
   fetch_tasks() {
-    fetch(
+    this.fetch(
       "/api/v1/tasks",
       (resp) => {
-	      store.dispatch({
-	        type: 'TASK_LIST',
-	        data: resp.data
-	      });
+        store.dispatch({
+	  type: 'TASK_LIST',
+	  data: resp.data
+	});
       }
     );
   }
 
   fetch_task(id) {
-    fetch(
+    this.fetch(
       "/api/v1/tasks/" + id,
       (resp) => {
         store.dispatch({
@@ -75,8 +75,8 @@ class TheServer {
     let desc = $("#desc").val();
     let assigned_user = $("#assigned_user").val();
     let time_worked = $("#time_worked").val();
-    let completed = $("#completed").val();
-    post(
+    let completed = $("#completed").prop('checked');
+    this.post(
       "/api/v1/tasks",
       {task: {title, desc, time_worked, completed, assigned_user}, token: token},
       (resp) => {
@@ -84,7 +84,10 @@ class TheServer {
           type: 'TASK',
           data: resp.data
         });
-        // TODO: redirect
+        this.fetch_tasks();
+      },
+      (xhr, ajaxOptions, thrownError) => {
+        console.log("failed to create task");
       }
     );
   }
@@ -92,12 +95,10 @@ class TheServer {
   delete_task(task_id) {
     let state = store.getState();
     let token = state.session.token;
-    del(
-      "/api/v1/tasks/" + task_id,
-      {token},
+    this.del(
+      "/api/v1/tasks/" + task_id + "?token=" + token,
       (resp) => {
         this.fetch_tasks();
-        // TODO: redirect
       }
     );
   }
@@ -109,8 +110,8 @@ class TheServer {
     let desc = $("#desc").val();
     let assigned_user = $("#assigned_user").val();
     let time_worked = $("#time_worked").val();
-    let completed = $("#completed").val();
-    put(
+    let completed = $("#completed").prop('checked');
+    this.put(
       "/api/v1/tasks/" + task_id,
       {task: {task_id, title, desc, time_worked, completed, assigned_user}, token: token},
       (resp) => {
@@ -118,36 +119,25 @@ class TheServer {
           type: 'TASK',
           data: resp.data
         });
-        // TODO: redirect
-      }
-    );
-  }
-
-  fetch_users() {
-    fetch(
-      "/api/v1/users",
-      (resp) => {
-        store.dispatch({
-          type: 'USER_LIST',
-          data: resp.data
-        });
       }
     );
   }
 
   create_user(username, password) {
-    post(
+    this.post(
       "/api/v1/users",
       {user: {username, password}},
       (resp) => {
-        console.log("created user:");
-        console.log(resp.data);
+        console.log("created user");
+      },
+      (xhr, ajaxOptions, thrownError) => {
+        console.log("failed to create user");
       }
     );
   }
 
   create_session(username, password) {
-    post(
+    this.post(
       "/api/v1/sessions",
       {username, password},
       (resp) => {
@@ -155,30 +145,30 @@ class TheServer {
           type: 'NEW_SESSION',
           data: resp.data
         });
-        // redirect to "/"
+        history.push('/');
+	location.reload();
+	Root.forceUpdate();
+      },
+      (xhr, ajaxOptions, thrownError) => {
+	$('#login-alert').show();
       }
     );
   }
 
   logout() {
-    // NOTE: not really an api call.
     store.dispatch({
       type: 'NEW_SESSION',
       data: null
     });
-    /*
-    let state = store.getState();
-    let token = state.session.token;
-    del(
-      "/api/v1/sessions",
-      {token},
-      (resp) => {
-        store.dispatch({
-          type: 'NEW_SESSION',
-          data: null
-        });
-      }
-    );
-    */
+    store.dispatch({
+      type: 'TASK_LIST',
+      data: []
+    });
+    store.dispatch({
+      type: 'TASK',
+      data: null
+    });
   }
 }
+
+export default new TheServer();

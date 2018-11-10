@@ -21,14 +21,16 @@ function Task(props) {
     <div className="col-8">
       <div className="card">
         <div className="card-body">
-          <h2 className="card-title">
-            <Link to={"/task/" + task.id} onClick={() => api.fetch_task(task.id)}>
-              {task.name}
-            </Link>
-          </h2>
-          <p className="card-text">
-            Assigned to: {task.user.username} | Completed: {task.Completed}
-          </p>
+          <div className="task-info">
+            <h3 className="card-title">
+              <Link to={"/task/" + task.id} onClick={() => api.fetch_task(task.id)}>
+                {task.title}
+              </Link>
+            </h3>
+            <p className="card-text">
+              <b>Assigned to:</b> {task.user.username} | <b>Completed:</b> {task.completed ? "yes" : "no"}
+            </p>
+          </div>
         </div>
       </div>
     </div>

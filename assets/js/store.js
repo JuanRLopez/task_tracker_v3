@@ -2,66 +2,41 @@ import { createStore, combineReducers } from 'redux';
 import deepFreeze from 'deep-freeze';
 
 
-function tasks(state = [], action) {
+function tasks(state0 = [], action) {
   switch(action.type) {
     case 'TASK_LIST':
+      localStorage.setItem('tasks', JSON.stringify(action.data));
       return action.data;
     default:
-      return state;
+      return JSON.parse(localStorage.getItem('tasks'));
   }
 }
 
-function task(state = null, action) {
+function task(state0 = null, action) {
   switch(action.type) {
-    case 'CREATE_TASK':
-      //TODO: do something
-    case 'UPDATE_TASK':
-      //TODO: do something
-    case 'DELETE_TASK':
-      //TODO: do something
-    default:
-      return state;
-  }
-}
-
-function users(state = [], action) {
-  switch(action.type) {
-    case 'USER_LIST':
+    case 'TASK':
+      localStorage.setItem('task', JSON.stringify(action.data));
       return action.data;
     default:
-      return state;
+      return JSON.parse(localStorage.getItem('task'));
   }
 }
 
-function user(state = null, action) {
-  switch(action.type) {
-    case 'CREATE_USER':
-      //TODO: do something
-    default:
-      return state;
-  }
-}
-
-function session(state = null, action) {
+function session(state0 = null, action) {
   switch(action.type) {
     case 'NEW_SESSION':
+      localStorage.setItem('session', JSON.stringify(action.data));
       return action.data;
-    case 'LOGOUT':
-      //TODO: do something
     default:
-      return state;
+      return JSON.parse(localStorage.getItem('session'));
   }
 }
 
 function root_reducer(state0, action) {
-  console.log("reducer", state0, action);
-
-  let reducer = combineReducers({tasks, task, users, user, session});
+  let reducer = combineReducers({tasks, task, session});
   let state1 = reducer(state0, action);
-
-  console.log("reducer1", state1);
-
-  return deepFreeze(state1);
+  deepFreeze(state1);
+  return state1;
 }
 
 let store = createStore(root_reducer);

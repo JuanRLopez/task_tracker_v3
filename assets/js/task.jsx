@@ -6,11 +6,22 @@ import _ from 'lodash';
 import api from './api';
 
 function Task(props) {
-  //let task = api.fetch_task(props.match.params.id);
   let {task} = props;
+  if(!task) {
+    task = {
+      id: -1,
+      title: "loading...",
+      desc: "",
+      completed: false,
+      time_worked: 0,
+      user: {
+        username: "",
+      },
+    }
+  }
   return <div className="row">
-    <div className="col-6">
-      <h1>{task.name}</h1>
+    <div className="col-12">
+      <h1>{task.title}</h1>
       <div className="card">
         <div className="card-body">
           <p>
@@ -19,9 +30,9 @@ function Task(props) {
         </div>
       </div>
       <p>
-        Assigned to: {task.user.username} | Completed: {task.Completed} | Time Worked: {task.time_worked}
+        <b>Assigned to:</b> {task.user.username} | <b>Completed:</b> {task.completed ? "yes" : "no"} | <b>Time Worked:</b> {task.time_worked}
       </p>
-      <span><Link to={"/task/edit/" + task.id} onClick={() => api.fetch_task(props.match.params.id)} className="btn btn-primary">Edit</Link></span>
+      <span><Link to={"/edit_task/" + task.id} onClick={() => api.fetch_task(task.id)} className="btn btn-primary">Edit</Link></span>
       <span><Link to={"/"} onClick={() => api.fetch_tasks()} className="btn btn-secondary">Back</Link></span>
       <span className="delete-btn">
         <Link to={"/"} onClick={() => {api.delete_task(task.id);api.fetch_tasks();}} className="btn btn-danger">

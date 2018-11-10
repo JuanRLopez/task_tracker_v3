@@ -10,8 +10,9 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :task_tracker_v3, TaskTrackerV3Web.Endpoint,
+  server: true,
   http: [:inet6, port: System.get_env("PORT") || 4000],
-  url: [host: "example.com", port: 80],
+  url: [host: "tasks3.jlopez.site", port: 443, scheme: "https"],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
@@ -68,7 +69,7 @@ config :logger, level: :info
 
 # Finally import the config/prod.secret.exs which should be versioned
 # separately.
-import_config "prod.secret.exs"
+#import_config "prod.secret.exs"
 
 get_secret = fn name ->
   base = Path.expand("~/.config/task_tracker")
@@ -85,7 +86,7 @@ config :task_tracker_v3, TaskTrackerV3Web.Endpoint,
   secret_key_base: get_secret.("key_base");
 
 # Configure your database
-config :task_tracker, TaskTracker.Repo,
+config :task_tracker_v3, TaskTrackerV3.Repo,
   username: "task_tracker_v3",
   password: get_secret.("db_pass"),
   database: "task_tracker_v3_prod",

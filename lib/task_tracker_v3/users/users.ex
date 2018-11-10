@@ -51,9 +51,11 @@ defmodule TaskTrackerV3.Users do
 
   """
   def create_user(attrs \\ %{}) do
+    IO.puts("\n[CREATE USER1]\n#{inspect(attrs)}\n")
+    attrs = Map.put(attrs, "password_hash", Argon2.hash_pwd_salt(attrs["password"]))
+    IO.puts("\n[CREATE USER2]\n#{inspect(attrs)}\n")
     %User{}
     |> User.changeset(attrs)
-    |> Map.put(:password, Argon2.hash_pwd_salt(attrs["password"]))
     |> Repo.insert()
   end
 
